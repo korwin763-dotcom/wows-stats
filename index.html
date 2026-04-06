@@ -614,6 +614,11 @@ function renderTypeChart() {
 // === Daily Snapshot Tracking ===
 const SNAP_KEY = 'wows_snapshots';
 
+function getLocalDate() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
 function getSnapshots() {
   try { return JSON.parse(localStorage.getItem(SNAP_KEY) || '[]'); } catch(e) { return []; }
 }
@@ -621,7 +626,7 @@ function getSnapshots() {
 function saveSnapshot() {
   const pvp = window._currentPvp;
   if (!pvp) { document.getElementById('snap-status').textContent = '먼저 전적을 조회하세요.'; return; }
-  const today = new Date().toISOString().split('T')[0];
+  const today = getLocalDate();
   const snaps = getSnapshots();
   const existing = snaps.findIndex(s => s.date === today);
   const entry = {
@@ -654,7 +659,7 @@ function clearSnapshots() {
 function autoSaveSnapshot() {
   const pvp = window._currentPvp;
   if (!pvp) return;
-  const today = new Date().toISOString().split('T')[0];
+  const today = getLocalDate();
   const snaps = getSnapshots();
   if (snaps.some(s => s.date === today)) return; // already saved today
   snaps.push({
@@ -678,7 +683,7 @@ function exportSnapshots() {
   const blob = new Blob([JSON.stringify(snaps, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `wows-snapshots-${new Date().toISOString().split('T')[0]}.json`;
+  a.download = `wows-snapshots-${getLocalDate()}.json`;
   a.click();
   URL.revokeObjectURL(a.href);
 }
