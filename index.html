@@ -363,6 +363,7 @@ async function doSearch() {
 
     // Render
     renderDashboard(player, ships, allShips, accountId);
+    autoSaveSnapshot();
     setStatus('');
     document.getElementById('dashboard').style.display = 'block';
   } catch (e) {
@@ -566,6 +567,27 @@ function saveSnapshot() {
 function clearSnapshots() {
   if (!confirm('모든 일별 기록을 삭제하시겠습니까?')) return;
   localStorage.removeItem(SNAP_KEY);
+  renderDailyTracking();
+}
+
+function autoSaveSnapshot() {
+  const pvp = window._currentPvp;
+  if (!pvp) return;
+  const today = new Date().toISOString().split('T')[0];
+  const snaps = getSnapshots();
+  if (snaps.some(s => s.date === today)) return; // already saved today
+  snaps.push({
+    date: today,
+    battles: pvp.battles || 0,
+    wins: pvp.wins || 0,
+    damage_dealt: pvp.damage_dealt || 0,
+    frags: pvp.frags || 0,
+    xp: pvp.xp || 0,
+    survived_battles: pvp.survived_battles || 0,
+  });
+  snaps.sort((a,b) => a.date.localeCompare(b.date));
+  localStorage.setItem(SNAP_KEY, JSON.stringify(snaps));
+  document.getElementById('snap-status').textContent = `${today} 자동 저장됨`;
   renderDailyTracking();
 }
 
