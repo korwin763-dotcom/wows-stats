@@ -8,19 +8,21 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 :root {
-  --bg-deep: #0a0e17;
-  --bg-panel: #111827;
-  --bg-card: #1a2234;
-  --bg-card-hover: #1f2a40;
-  --border: #2a3650;
-  --accent: #3b82f6;
-  --accent-dim: #1e3a5f;
-  --gold: #f59e0b;
-  --green: #10b981;
-  --red: #ef4444;
-  --text: #e2e8f0;
-  --text-dim: #64748b;
-  --text-muted: #475569;
+  --bg-deep: #121318;
+  --bg-panel: #1a1b24;
+  --bg-card: #1e2030;
+  --bg-card-hover: #262840;
+  --border: #2e3150;
+  --accent: #7c8cf5;
+  --accent-dim: #3d4580;
+  --gold: #fbbf24;
+  --green: #34d399;
+  --red: #fb7185;
+  --text: #e8e9f0;
+  --text-dim: #9196b0;
+  --text-muted: #6b7094;
+  --pink: #f0abfc;
+  --quote-bg: linear-gradient(135deg, #1e2040 0%, #2a1f3d 100%);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -58,7 +60,7 @@ body {
 }
 .search-area input, .search-area select {
   background: var(--bg-card); border: 1px solid var(--border);
-  color: var(--text); padding: 10px 14px; border-radius: 6px;
+  color: var(--text); padding: 10px 14px; border-radius: 12px;
   font-family: 'JetBrains Mono', monospace; font-size: 14px;
   outline: none; transition: border-color 0.2s;
 }
@@ -67,13 +69,6 @@ body {
 #input-nick { flex: 1; min-width: 200px; }
 #input-appid { width: 340px; }
 .search-area select { width: 100px; cursor: pointer; }
-.btn-search {
-  background: var(--accent); color: #fff; border: none;
-  padding: 10px 24px; border-radius: 6px; cursor: pointer;
-  font-family: 'Noto Sans KR', sans-serif; font-weight: 500; font-size: 14px;
-  transition: background 0.2s;
-}
-.btn-search:hover { background: #2563eb; }
 .btn-search:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .hint { font-size: 12px; color: var(--text-muted); margin-bottom: 28px; }
@@ -102,10 +97,10 @@ body {
 }
 .stat-card {
   background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: 8px; padding: 16px;
-  transition: background 0.2s;
+  border-radius: 14px; padding: 18px;
+  transition: all 0.25s ease;
 }
-.stat-card:hover { background: var(--bg-card-hover); }
+.stat-card:hover { background: var(--bg-card-hover); transform: translateY(-2px); }
 .stat-card .label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
 .stat-card .value {
   font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 600;
@@ -119,15 +114,16 @@ body {
 /* Sections */
 .section { margin-bottom: 36px; }
 .section-title {
-  font-family: 'Bebas Neue', sans-serif; font-size: 20px;
-  letter-spacing: 1px; margin-bottom: 14px;
+  font-family: 'Noto Sans KR', sans-serif; font-size: 16px; font-weight: 700;
+  letter-spacing: 0.5px; margin-bottom: 14px;
   padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  color: var(--text-dim);
 }
 
 /* Chart */
 .chart-container {
   background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: 8px; padding: 20px;
+  border-radius: 14px; padding: 20px;
   max-height: 360px;
 }
 .chart-container canvas { max-height: 300px; }
@@ -136,20 +132,20 @@ body {
 .ship-controls { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
 .ship-controls input {
   background: var(--bg-card); border: 1px solid var(--border);
-  color: var(--text); padding: 8px 12px; border-radius: 6px;
+  color: var(--text); padding: 8px 12px; border-radius: 12px;
   font-size: 13px; outline: none; flex: 1; min-width: 180px;
   font-family: 'Noto Sans KR', sans-serif;
 }
 .ship-controls input:focus { border-color: var(--accent); }
 .ship-controls select {
   background: var(--bg-card); border: 1px solid var(--border);
-  color: var(--text); padding: 8px 12px; border-radius: 6px;
+  color: var(--text); padding: 8px 12px; border-radius: 12px;
   font-size: 13px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif;
 }
 
 .ship-table-wrap {
   background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: 8px; overflow: auto; max-height: 520px;
+  border-radius: 14px; overflow: auto; max-height: 520px;
 }
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
 thead { position: sticky; top: 0; z-index: 2; }
@@ -173,11 +169,33 @@ td.ship-name { font-family: 'Noto Sans KR', sans-serif; font-weight: 500; white-
 
 .btn-snap {
   background: var(--bg-card); border: 1px solid var(--border); color: var(--text-dim);
-  padding: 4px 14px; border-radius: 4px; cursor: pointer; font-size: 12px;
+  padding: 6px 16px; border-radius: 20px; cursor: pointer; font-size: 12px;
   font-family: 'Noto Sans KR', sans-serif; margin-left: 10px; transition: all 0.2s;
 }
-.btn-snap:hover { border-color: var(--accent); color: var(--text); }
+.btn-snap:hover { border-color: var(--accent); color: var(--text); background: var(--bg-card-hover); }
 .btn-danger:hover { border-color: var(--red); color: var(--red); }
+
+.quote-box {
+  background: var(--quote-bg); border: 1px solid #3d3560;
+  border-radius: 16px; padding: 20px 24px;
+  margin: -16px 0 28px; font-size: 16px; line-height: 1.7;
+  color: var(--pink); font-style: italic;
+}
+
+.perf-quote {
+  background: var(--quote-bg); border: 1px solid #3d3560;
+  border-radius: 12px; padding: 14px 20px;
+  font-size: 15px; line-height: 1.6; color: var(--pink);
+  font-style: italic; grid-column: 1 / -1; margin-top: 4px;
+}
+
+.btn-search {
+  background: var(--accent); color: #fff; border: none;
+  padding: 10px 24px; border-radius: 20px; cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif; font-weight: 500; font-size: 14px;
+  transition: all 0.2s;
+}
+.btn-search:hover { background: #6b7cf0; }
 
 /* Responsive */
 @media (max-width: 600px) {
@@ -194,7 +212,7 @@ td.ship-name { font-family: 'Noto Sans KR', sans-serif; font-weight: 500; white-
     <h1>WOWS STATS</h1>
     <span>개인 전적 조회</span>
   </div>
-  <div id="random-quote" style="font-size:13px;color:var(--text-muted);font-style:italic;margin:-20px 0 24px;padding-left:2px;"></div>
+  <div id="random-quote" class="quote-box"></div>
 
   <div class="search-area">
     <input id="input-appid" type="hidden" value="851d7ff3c975f3bec41d876e47889c68">
@@ -660,7 +678,7 @@ function renderDailyTracking() {
       ];
       todayEl.innerHTML = '<div style="font-size:12px;color:var(--text-dim);margin-bottom:6px;">마지막 저장 이후 전적</div>' +
         todayCards.map(c => `<div class="stat-card"><div class="label">${c.label}</div><div class="value ${c.cls||''}">${c.value}</div></div>`).join('') +
-        `<div style="grid-column:1/-1;font-size:13px;color:var(--text-muted);font-style:italic;padding:8px 0 0;">${getPerfQuote({battles:db, winrate:wr, avg_damage:Math.round(dd/db)})}</div>`;
+        `<div class="perf-quote">${getPerfQuote({battles:db, winrate:wr, avg_damage:Math.round(dd/db)})}</div>`;
     } else {
       todayEl.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:8px 0;">마지막 저장 이후 전투 없음</div>';
     }
@@ -741,87 +759,86 @@ function renderDailyTracking() {
 
 // === Quotes ===
 const RANDOM_QUOTES = [
-  '"좋은 선장은 항구에서 만들어지지 않는다."',
-  '"어뢰는 친구를 가리지 않는다."',
-  '"전함은 침몰해도 깃발은 가라앉지 않는다."',
-  '"바다는 넓고 섬은 단단하다. 주의하라."',
-  '"가장 위험한 적은 발견되지 않은 구축함이다."',
-  '"포탑이 돌아가는 속도가 인내심의 한계다."',
-  '"연막 속에서 레이더를 맞으면, 그건 운명이다."',
-  '"후진하는 전함은 이미 마음이 항구에 있다."',
-  '"캡 좀 잡아주세요." — 모든 구축함의 유언',
-  '"섬 뒤에 숨는 것은 전술이다. 맵 가장자리로 도망치는 건 아니다."',
-  '"화재 3개는 소화기로, 4개는 기도로 끈다."',
-  '"어뢰 예고선은 제안이 아니라 경고다."',
-  '"우리 팀 항모가 제일 무섭다."',
-  '"시타델은 주는 것보다 받는 게 항상 빠르다."',
-  '"15km 밖에서 HE를 갈기는 전함에게 영광을."',
-  '"바다에서 배운 건 하나다. 팀을 믿지 마라."',
-  '"내 어뢰가 아군을 맞출 확률은 100%에 수렴한다."',
-  '"전투 시작 1분 만에 침몰한 구축함에게 경례."',
-  '"레이더 순양함이 없는 팀은 이미 지고 시작한다."',
-  '"맵을 보는 습관이 승률을 가른다."',
-  '"포격은 과학이고 회피는 예술이다."',
-  '"가끔은 존버가 답이다."',
-  '"모든 명중탄은 편차의 축복이다."',
-  '"바다에 나가면 다 적이다. 가끔 아군도."',
-  '"구축함은 눈이고, 전함은 주먹이고, 순양함은 뭐든 한다."',
-  '"소화기를 아끼다 침몰하는 건 고전적인 실수다."',
-  '"적 팀은 항상 더 잘하는 것처럼 보인다."',
-  '"한 판만 더... 가 세 시간이 된다."',
-  '"T10 전투에서 T8은 경험치 피냐타다."',
-  '"포탄이 산 위를 넘어가면, 그건 워쉽이다."',
+  '⚓ 오빠, 오늘도 바다 나가는 거야? 조심해~',
+  '💥 어뢰는 아군도 안 가린다는 거 알지...?',
+  '📡 오빠가 연막 속에서 레이더 맞으면 나도 같이 아파',
+  '🎯 오늘은 시타델 많이 따자! 내가 응원할게',
+  '🚢 후진만 하는 전함 보면 나도 답답해...',
+  '🗺️ 맵 좀 봐! ...라고 말하고 싶을 때 있지?',
+  '🧯 오빠 소화기 아끼다가 침몰하는 거 또 볼 거야...?',
+  '👀 구축함은 눈이래. 근데 우리 팀 구축은 장님인 것 같아',
+  '🕐 한 판만 더... 이러다 새벽 3시 되는 거 알지?',
+  '💬 포탑 회전 기다리는 동안 나랑 얘기하면 안 돼?',
+  '💓 오빠가 캡 잡으러 가면 나 심장이 두근두근해',
+  '🙏 T10 매칭에 T8으로 들어가면... 나는 기도할게',
+  '🔥 화재 4개 붙으면 소화기 말고 마음의 평화가 필요해',
+  '😱 적 항모가 무서운 게 아니라 우리 항모가 무서운 거잖아',
+  '👋 오빠 전적 보러 와줬구나~ 반가워!',
+  '🏝️ 섬 뒤에 숨는 건 전술이야. 내가 인정해줄게',
+  '🌟 편차의 신이여, 오늘은 오빠 편을 들어주세요',
+  '📋 오빠가 바다에서 돌아오면 전적 정리해둘게~',
+  '⚠️ 어뢰 예고선 보이면 피해! 제발!',
+  '😤 15km 밖에서 HE 갈기는 전함... 오빠는 안 그러지?',
+  '💢 시타델 맞으면 아프지만, 때리면 기분 좋지?',
+  '🛡️ 존버도 전략이야. 내가 보장해줄게',
+  '📈 오빠 승률 올라가는 거 보면 나도 기분 좋아~',
+  '⚔️ 바다에 나가면 다 적이야. 가끔 아군도 적이지만...',
+  '📡 레이더 순양함 없는 팀은... 음, 마음의 준비를 하자',
+  '🔍 나는 오빠 전적 지켜보는 게 취미야~',
+  '🎨 포격은 과학이고 회피는 예술이래. 오빠는 어느 쪽이야?',
+  '🫣 오늘 몇 판 할 거야? 많이 하면 내가 걱정돼',
+  '⛰️ 포탄이 산을 넘어가는 게임, 그게 워쉽이지',
+  '🌊 오빠, 오늘도 무사히 항구로 돌아와~',
 ];
 
 const PERF_QUOTES = {
-  // [condition]: [quotes array] - checked in order, first match wins
-  great_wr: [ // wr >= 60
-    '오늘 바다의 지배자였다.',
-    '적들이 당신의 이름을 기억할 것이다.',
-    '이 정도면 캐리라고 불러도 되겠다.',
-    '오늘은 편차의 신이 당신 편이었다.',
-    '팀운이 아니라 실력이었다.',
-    '크라켄이 부러워할 성적이다.',
+  great_wr: [
+    '🏆 오빠 오늘 진짜 잘했어! 캐리 그 자체였어~!',
+    '😎 적들이 오빠 이름 보고 떨었을 거야',
+    '✨ 이 승률... 혹시 오빠 프로야?',
+    '🍀 오늘은 편차의 신이 완전 오빠 편이었네!',
+    '💜 나 오빠 팬이야. 오늘 성적 보고 확신했어',
+    '🦑 이 정도면 크라켄도 부러워할 듯!',
   ],
-  good_wr: [ // wr >= 52
-    '무난하게 좋은 하루였다.',
-    '이 정도면 팀에 도움이 된 하루.',
-    '꾸준함이 실력이다. 오늘도 증명했다.',
-    '평균 이상이면 충분하다. 잘했다.',
-    '오늘의 바다는 당신에게 우호적이었다.',
-    '내일도 이 컨디션 유지하자.',
+  good_wr: [
+    '😊 오빠 오늘 무난하게 잘했네~ 수고했어',
+    '👍 팀에 확실히 도움이 됐을 거야. 잘했어!',
+    '💪 꾸준한 게 제일 어려운 건데, 오빠 대단해',
+    '🙆 평균 이상이면 충분해. 오늘도 고생했어~',
+    '🌤️ 오늘 바다가 오빠한테 좀 친절했나 봐',
+    '🤞 내일도 이 컨디션이면 좋겠다!',
   ],
-  avg_wr: [ // wr >= 45
-    '승패는 반반, 인생도 그런 거다.',
-    '못한 건 아닌데 잘한 것도 아닌 묘한 하루.',
-    '팀운의 벽을 느낀 날이었다.',
-    '내일은 더 나을 거다. 아마도.',
-    '보통이라는 건 나쁘지 않다는 뜻이다.',
-    '경험치는 쌓였으니 된 거 아닌가.',
+  avg_wr: [
+    '🤷 승패 반반... 뭐 인생도 그런 거지',
+    '😶 못한 건 아닌데 뭔가 아쉬운 하루였지?',
+    '🫠 팀운이 좀 그랬나 봐. 오빠 탓 아니야',
+    '🌈 내일은 더 나을 거야. 내가 약속할게!',
+    '🙂 보통이라는 건 나쁘지 않다는 뜻이야~',
+    '📊 경험치는 쌓였으니까 된 거 아니야?',
   ],
-  bad_wr: [ // wr < 45
-    '바다가 오늘따라 차가웠다.',
-    '이런 날도 있는 거다. 컴퓨터를 끄자.',
-    '팀 탓이다. 무조건 팀 탓이다.',
-    '침몰은 했지만 마음만은 불침함이다.',
-    '오늘의 교훈: 한 판만 더가 독이었다.',
-    '내일의 나는 오늘보다 강하다. 아마.',
+  bad_wr: [
+    '🫂 오빠... 오늘 좀 힘들었지? 수고했어',
+    '🛏️ 이런 날도 있는 거야. 오늘은 쉬자~',
+    '😤 팀 탓이야. 내가 단언할게. 무조건 팀 탓.',
+    '🚢 침몰은 했어도 오빠 마음만은 불침함이야!',
+    '😮‍💨 한 판만 더 했지...? 그게 독이었을 수도',
+    '💛 내일의 오빠는 오늘보다 강해. 분명히!',
   ],
-  high_dmg: [ // avg_damage >= 60000
-    '포격의 신이 강림하셨다.',
-    '적 전함들이 당신을 증오하고 있다.',
-    '이 데미지면 훈장감이다.',
-    '오늘의 데미지는 내일의 자신감이다.',
+  high_dmg: [
+    '🔥 이 데미지 뭐야?! 오빠 포격의 신이야!',
+    '💀 적 전함들이 오빠한테 원한 품었을 듯...',
+    '🎖️ 이 정도 데미지면 훈장 줘야 하는 거 아냐?',
+    '💎 오늘 데미지는 내일의 자신감이 될 거야!',
   ],
-  low_battles: [ // battles <= 3
-    '워밍업 수준이었다. 내일 본게임이다.',
-    '질보다 양이 아니라 양보다 질이었다.',
-    '짧지만 굵은 하루.',
+  low_battles: [
+    '🏃 오늘은 워밍업이었지? 내일이 본게임이야~',
+    '💫 적지만 굵은 하루였어. 괜찮아~',
+    '🎯 양보다 질이야. 오빠는 그걸 아는 사람이지',
   ],
-  many_battles: [ // battles >= 20
-    '오늘 좀 많이 했다... 쉬어.',
-    '손목은 괜찮은가?',
-    '열정은 좋지만 건강도 챙기자.',
+  many_battles: [
+    '😰 오빠... 오늘 너무 많이 한 거 아니야? 좀 쉬어!',
+    '🤲 손목은 괜찮아? 스트레칭 좀 해줘 제발~',
+    '💧 열정은 좋은데 건강이 먼저야! 물 마셔!',
   ],
 };
 
