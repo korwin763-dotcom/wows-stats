@@ -8,21 +8,21 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 :root {
-  --bg-deep: #121318;
-  --bg-panel: #1a1b24;
-  --bg-card: #1e2030;
-  --bg-card-hover: #262840;
-  --border: #2e3150;
-  --accent: #7c8cf5;
-  --accent-dim: #3d4580;
-  --gold: #fbbf24;
-  --green: #34d399;
-  --red: #fb7185;
-  --text: #e8e9f0;
-  --text-dim: #9196b0;
-  --text-muted: #6b7094;
-  --pink: #f0abfc;
-  --quote-bg: linear-gradient(135deg, #1e2040 0%, #2a1f3d 100%);
+  --bg-deep: #f5f0ff;
+  --bg-panel: #ede7f6;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f3eeff;
+  --border: #e0d6f0;
+  --accent: #9c7cf5;
+  --accent-dim: #c4b0f5;
+  --gold: #f5a623;
+  --green: #4ade80;
+  --red: #f87171;
+  --text: #3a3255;
+  --text-dim: #7e6fa0;
+  --text-muted: #a99cc4;
+  --pink: #d946a8;
+  --quote-bg: linear-gradient(135deg, #f3e8ff 0%, #fce7f3 50%, #e8f4fd 100%);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -32,11 +32,11 @@ body {
   color: var(--text);
   font-family: 'Noto Sans KR', sans-serif;
   min-height: 100vh;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .noise {
-  position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.03;
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.015;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -50,9 +50,9 @@ body {
 }
 .header h1 {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 36px; letter-spacing: 2px; color: var(--text);
+  font-size: 36px; letter-spacing: 2px; color: var(--accent);
 }
-.header span { font-size: 13px; color: var(--text-dim); }
+.header span { font-size: 13px; color: var(--text-muted); }
 
 /* Search */
 .search-area {
@@ -97,10 +97,11 @@ body {
 }
 .stat-card {
   background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: 14px; padding: 18px;
+  border-radius: 18px; padding: 18px;
   transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(156, 124, 245, 0.06);
 }
-.stat-card:hover { background: var(--bg-card-hover); transform: translateY(-2px); }
+.stat-card:hover { background: var(--bg-card-hover); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(156, 124, 245, 0.12); }
 .stat-card .label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
 .stat-card .value {
   font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 600;
@@ -123,8 +124,9 @@ body {
 /* Chart */
 .chart-container {
   background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: 14px; padding: 20px;
+  border-radius: 18px; padding: 20px;
   max-height: 360px;
+  box-shadow: 0 2px 8px rgba(156, 124, 245, 0.06);
 }
 .chart-container canvas { max-height: 300px; }
 
@@ -145,7 +147,8 @@ body {
 
 .ship-table-wrap {
   background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: 14px; overflow: auto; max-height: 520px;
+  border-radius: 18px; overflow: auto; max-height: 520px;
+  box-shadow: 0 2px 8px rgba(156, 124, 245, 0.06);
 }
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
 thead { position: sticky; top: 0; z-index: 2; }
@@ -158,7 +161,7 @@ th {
 th:hover { color: var(--text); }
 th .sort-arrow { margin-left: 4px; font-size: 10px; }
 td {
-  padding: 8px 12px; border-bottom: 1px solid #1a2234;
+  padding: 8px 12px; border-bottom: 1px solid var(--border);
   font-family: 'JetBrains Mono', monospace; font-size: 12px;
 }
 tr:hover td { background: var(--bg-card-hover); }
@@ -176,17 +179,19 @@ td.ship-name { font-family: 'Noto Sans KR', sans-serif; font-weight: 500; white-
 .btn-danger:hover { border-color: var(--red); color: var(--red); }
 
 .quote-box {
-  background: var(--quote-bg); border: 1px solid #3d3560;
-  border-radius: 16px; padding: 20px 24px;
+  background: var(--quote-bg); border: 1px solid #e0d0f0;
+  border-radius: 20px; padding: 20px 24px;
   margin: -16px 0 28px; font-size: 16px; line-height: 1.7;
   color: var(--pink); font-style: italic;
+  box-shadow: 0 2px 12px rgba(217, 70, 168, 0.08);
 }
 
 .perf-quote {
-  background: var(--quote-bg); border: 1px solid #3d3560;
-  border-radius: 12px; padding: 14px 20px;
+  background: var(--quote-bg); border: 1px solid #e0d0f0;
+  border-radius: 16px; padding: 14px 20px;
   font-size: 15px; line-height: 1.6; color: var(--pink);
   font-style: italic; grid-column: 1 / -1; margin-top: 4px;
+  box-shadow: 0 2px 12px rgba(217, 70, 168, 0.08);
 }
 
 .btn-quote-refresh {
@@ -225,9 +230,10 @@ td.ship-name { font-family: 'Noto Sans KR', sans-serif; font-weight: 500; white-
 .chat-apikey-area input:focus { border-color: var(--accent); }
 .chat-box {
   background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: 16px; padding: 16px; height: 400px;
+  border-radius: 20px; padding: 16px; height: 400px;
   overflow-y: auto; margin-bottom: 12px;
   display: flex; flex-direction: column; gap: 12px;
+  box-shadow: 0 2px 8px rgba(156, 124, 245, 0.06);
 }
 .chat-msg { display: flex; }
 .chat-msg.user { justify-content: flex-end; }
@@ -237,7 +243,7 @@ td.ship-name { font-family: 'Noto Sans KR', sans-serif; font-weight: 500; white-
   font-size: 14px; line-height: 1.6; word-break: break-word;
 }
 .chat-msg.claude .chat-bubble {
-  background: var(--quote-bg); border: 1px solid #3d3560;
+  background: var(--quote-bg); border: 1px solid #e0d0f0;
   color: var(--text);
 }
 .chat-msg.user .chat-bubble {
@@ -600,7 +606,7 @@ function renderTypeChart() {
       responsive: true, maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
       plugins: {
-        legend: { labels: { color: '#94a3b8', font: { size: 11 } } },
+        legend: { labels: { color: '#7e6fa0', font: { size: 11 } } },
         tooltip: {
           callbacks: {
             afterBody(items) {
@@ -611,8 +617,8 @@ function renderTypeChart() {
         }
       },
       scales: {
-        x: { ticks: { color: '#94a3b8', font: { size: 12 } }, grid: { color: '#1e293b' } },
-        y: { position: 'left', ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: '#1e293b' }, title: { display: true, text: '전투 수', color: '#64748b', font: { size: 11 } } },
+        x: { ticks: { color: '#7e6fa0', font: { size: 12 } }, grid: { color: '#e8e0f4' } },
+        y: { position: 'left', ticks: { color: '#a99cc4', font: { size: 10 } }, grid: { color: '#e8e0f4' }, title: { display: true, text: '전투 수', color: '#a99cc4', font: { size: 11 } } },
         y1: { position: 'right', min: 0, max: 100, ticks: { color: '#f59e0b', font: { size: 10 } }, grid: { display: false }, title: { display: true, text: '승률 %', color: '#f59e0b', font: { size: 11 } } },
       }
     }
@@ -813,7 +819,7 @@ function renderDailyTracking() {
     data: {
       labels: days.map(d => d.date.slice(5)),
       datasets: [
-        { label: '평균 데미지', data: days.map(d => d.avg_damage), backgroundColor: 'rgba(59,130,246,0.6)', borderRadius: 3, yAxisID: 'y', order: 2 },
+        { label: '평균 데미지', data: days.map(d => d.avg_damage), backgroundColor: 'rgba(156,124,245,0.5)', borderRadius: 3, yAxisID: 'y', order: 2 },
         { label: '승률 (%)', data: days.map(d => d.winrate), type: 'line', borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.1)', tension: 0.3, pointRadius: 4, pointBackgroundColor: '#f59e0b', yAxisID: 'y1', order: 1 }
       ]
     },
@@ -821,12 +827,12 @@ function renderDailyTracking() {
       responsive: true, maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
       plugins: {
-        legend: { labels: { color: '#94a3b8', font: { size: 11 } } },
+        legend: { labels: { color: '#7e6fa0', font: { size: 11 } } },
         tooltip: { callbacks: { afterBody(items) { const i = items[0].dataIndex; return `전투 수: ${days[i].battles}`; } } }
       },
       scales: {
-        x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: '#1e293b' } },
-        y: { position: 'left', ticks: { color: '#3b82f6', font: { size: 10 } }, grid: { color: '#1e293b' }, title: { display: true, text: '평균 데미지', color: '#3b82f6', font: { size: 11 } } },
+        x: { ticks: { color: '#a99cc4', font: { size: 10 } }, grid: { color: '#e8e0f4' } },
+        y: { position: 'left', ticks: { color: '#9c7cf5', font: { size: 10 } }, grid: { color: '#e8e0f4' }, title: { display: true, text: '평균 데미지', color: '#9c7cf5', font: { size: 11 } } },
         y1: { position: 'right', min: 0, max: 100, ticks: { color: '#f59e0b', font: { size: 10 } }, grid: { display: false }, title: { display: true, text: '승률 %', color: '#f59e0b', font: { size: 11 } } },
       }
     }
