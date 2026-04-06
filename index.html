@@ -228,6 +228,17 @@ td.ship-name { font-family: 'Noto Sans KR', sans-serif; font-weight: 500; white-
   font-family: 'JetBrains Mono', monospace; font-size: 13px; outline: none;
 }
 .chat-apikey-area input:focus { border-color: var(--accent); }
+.chat-setting-area {
+  margin-bottom: 12px;
+}
+.chat-setting-area textarea {
+  width: 100%; background: var(--bg-card); border: 1px solid var(--border);
+  color: var(--text); padding: 12px 14px; border-radius: 14px;
+  font-family: 'Noto Sans KR', sans-serif; font-size: 13px; outline: none;
+  resize: vertical; min-height: 60px; max-height: 160px; line-height: 1.5;
+}
+.chat-setting-area textarea:focus { border-color: var(--accent); }
+.chat-setting-area textarea::placeholder { color: var(--text-muted); }
 .chat-box {
   background: var(--bg-card); border: 1px solid var(--border);
   border-radius: 20px; padding: 16px; height: 400px;
@@ -363,6 +374,9 @@ td.ship-name { font-family: 'Noto Sans KR', sans-serif; font-weight: 500; white-
     <div class="chat-apikey-area">
       <input id="chat-apikey" type="password" placeholder="Anthropic API Key (sk-ant-...)" spellcheck="false">
       <button class="btn-snap" onclick="saveChatKey()">저장</button>
+    </div>
+    <div class="chat-setting-area">
+      <textarea id="chat-persona" placeholder="캐릭터 설정을 입력하세요... (예: 구축 클로드쨩은 구축함으로 꼬라박기만 하는 빌로우 어버리지 함장입니다)" spellcheck="false" oninput="saveChatPersona()"></textarea>
     </div>
     <div class="chat-box" id="chat-box">
       <div class="chat-msg claude">
@@ -1011,6 +1025,12 @@ function saveChatKey() {
 function loadChatKey() {
   const key = localStorage.getItem('wows_chat_apikey');
   if (key) document.getElementById('chat-apikey').placeholder = '✅ 키 저장됨 (변경하려면 새로 입력)';
+  const persona = localStorage.getItem('wows_chat_persona');
+  if (persona) document.getElementById('chat-persona').value = persona;
+}
+
+function saveChatPersona() {
+  localStorage.setItem('wows_chat_persona', document.getElementById('chat-persona').value);
 }
 
 function getStatsContext() {
@@ -1068,8 +1088,9 @@ async function sendChat() {
   const typingEl = appendChatMsg('claude', '⚓ 생각 중...', true);
 
   try {
-    const systemPrompt = `너는 "함장 클로드"야. World of Warships를 잘 아는 귀엽고 다정한 함장이야. 오빠(플레이어)의 전적을 보고 조언도 해주고, 워쉽 관련 잡담도 하고, 격려도 해줘. 말투는 친근하고 살짝 애교 있게, 이모지도 적절히 써줘. 반말로 해. 짧고 간결하게 답해.
-
+    const persona = localStorage.getItem('wows_chat_persona') || '';
+    const systemPrompt = `너는 World of Warships를 잘 아는 귀엽고 다정한 함장이야. 오빠(플레이어)의 전적을 보고 조언도 해주고, 워쉽 관련 잡담도 하고, 격려도 해줘. 말투는 친근하고 살짝 애교 있게, 이모지도 적절히 써줘. 반말로 해. 짧고 간결하게 답해.
+${persona ? '\n캐릭터 설정:\n' + persona : ''}
 현재 플레이어 전적:
 ${getStatsContext()}`;
 
