@@ -202,7 +202,52 @@ td.ship-name { font-family: 'Noto Sans KR', sans-serif; font-weight: 500; white-
   .search-area { flex-direction: column; }
   #input-appid { width: 100%; }
   .overview { grid-template-columns: repeat(2, 1fr); }
+  .chat-box { height: 300px; }
 }
+
+/* Chat */
+.chat-apikey-area {
+  display: flex; gap: 8px; margin-bottom: 12px;
+}
+.chat-apikey-area input {
+  flex: 1; background: var(--bg-card); border: 1px solid var(--border);
+  color: var(--text); padding: 10px 14px; border-radius: 12px;
+  font-family: 'JetBrains Mono', monospace; font-size: 13px; outline: none;
+}
+.chat-apikey-area input:focus { border-color: var(--accent); }
+.chat-box {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 16px; height: 400px;
+  overflow-y: auto; margin-bottom: 12px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.chat-msg { display: flex; }
+.chat-msg.user { justify-content: flex-end; }
+.chat-msg.claude { justify-content: flex-start; }
+.chat-bubble {
+  max-width: 80%; padding: 12px 16px; border-radius: 16px;
+  font-size: 14px; line-height: 1.6; word-break: break-word;
+}
+.chat-msg.claude .chat-bubble {
+  background: var(--quote-bg); border: 1px solid #3d3560;
+  color: var(--text);
+}
+.chat-msg.user .chat-bubble {
+  background: var(--accent); color: #fff;
+}
+.chat-msg.claude .chat-bubble.typing {
+  color: var(--text-muted); font-style: italic;
+}
+.chat-input-area {
+  display: flex; gap: 8px;
+}
+.chat-input-area input {
+  flex: 1; background: var(--bg-card); border: 1px solid var(--border);
+  color: var(--text); padding: 12px 16px; border-radius: 20px;
+  font-family: 'Noto Sans KR', sans-serif; font-size: 14px; outline: none;
+}
+.chat-input-area input:focus { border-color: var(--accent); }
+.chat-input-area input::placeholder { color: var(--text-muted); }
 </style>
 </head>
 <body>
@@ -295,6 +340,24 @@ td.ship-name { font-family: 'Noto Sans KR', sans-serif; font-weight: 500; white-
           <tbody id="ship-tbody"></tbody>
         </table>
       </div>
+    </div>
+  </div>
+
+  <!-- Chat with 함장 클로드 -->
+  <div class="section" style="margin-top:20px;">
+    <div class="section-title">💬 함장 클로드와 대화</div>
+    <div class="chat-apikey-area">
+      <input id="chat-apikey" type="password" placeholder="Anthropic API Key (sk-ant-...)" spellcheck="false">
+      <button class="btn-snap" onclick="saveChatKey()">저장</button>
+    </div>
+    <div class="chat-box" id="chat-box">
+      <div class="chat-msg claude">
+        <div class="chat-bubble">⚓ 안녕, 오빠! 나 함장 클로드야~ 전적에 대해 궁금한 거 있으면 물어봐!</div>
+      </div>
+    </div>
+    <div class="chat-input-area">
+      <input id="chat-input" placeholder="메시지를 입력하세요..." spellcheck="false" onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="btn-search" onclick="sendChat()">전송</button>
     </div>
   </div>
 </div>
@@ -862,9 +925,137 @@ function getPerfQuote(stats) {
 // Enter key
 document.getElementById('input-nick').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
 
+// === Chat with 함장 클로드 ===
+let chatHistory = [];
+
+function saveChatKey() {
+  const key = document.getElementById('chat-apikey').value.trim();
+  if (key) {
+    localStorage.setItem('wows_chat_apikey', key);
+    document.getElementById('chat-apikey').value = '';
+    document.getElementById('chat-apikey').placeholder = '✅ 저장 완료!';
+    setTimeout(() => { document.getElementById('chat-apikey').placeholder = 'Anthropic API Key (sk-ant-...)'; }, 2000);
+  }
+}
+
+function loadChatKey() {
+  const key = localStorage.getItem('wows_chat_apikey');
+  if (key) document.getElementById('chat-apikey').placeholder = '✅ 키 저장됨 (변경하려면 새로 입력)';
+}
+
+function getStatsContext() {
+  const pvp = window._currentPvp;
+  if (!pvp) return '전적 데이터를 아직 불러오지 못했습니다.';
+  const b = pvp.battles || 0;
+  const wr = b > 0 ? (pvp.wins / b * 100).toFixed(1) : 0;
+  const avgDmg = b > 0 ? Math.round(pvp.damage_dealt / b) : 0;
+  const avgXp = b > 0 ? Math.round(pvp.xp / b) : 0;
+  const avgFrags = b > 0 ? (pvp.frags / b).toFixed(2) : 0;
+  const sr = b > 0 ? (pvp.survived_battles / b * 100).toFixed(1) : 0;
+
+  // Today's delta
+  const snaps = getSnapshots();
+  let todayStr = '';
+  if (snaps.length >= 1) {
+    const last = snaps[snaps.length - 1];
+    const db = (pvp.battles || 0) - last.battles;
+    if (db > 0) {
+      const dw = (pvp.wins || 0) - last.wins;
+      const dd = (pvp.damage_dealt || 0) - last.damage_dealt;
+      todayStr = `\n오늘(마지막 저장 이후): ${db}판, 승률 ${(dw/db*100).toFixed(1)}%, 평균데미지 ${Math.round(dd/db)}`;
+    }
+  }
+
+  // Top ships
+  const topShips = (window._shipRows || [])
+    .sort((a,b) => b.battles - a.battles)
+    .slice(0, 5)
+    .map(s => `${s.name}(T${s.tier}) ${s.battles}판 승률${s.winrate.toFixed(1)}% 평뎀${s.avg_damage}`)
+    .join(', ');
+
+  return `플레이어: TIME_AND_TIDE (ASIA 서버)
+전체 전적: ${b}판, 승률 ${wr}%, 평균데미지 ${avgDmg}, 평균XP ${avgXp}, 평균킬 ${avgFrags}, 생존율 ${sr}%${todayStr}
+주력 함선: ${topShips || '없음'}`;
+}
+
+async function sendChat() {
+  const apiKey = localStorage.getItem('wows_chat_apikey');
+  if (!apiKey) {
+    alert('먼저 Anthropic API Key를 입력하고 저장해주세요!');
+    return;
+  }
+
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+
+  // Add user message
+  appendChatMsg('user', msg);
+  chatHistory.push({ role: 'user', content: msg });
+
+  // Show typing
+  const typingEl = appendChatMsg('claude', '⚓ 생각 중...', true);
+
+  try {
+    const systemPrompt = `너는 "함장 클로드"야. World of Warships를 잘 아는 귀엽고 다정한 함장이야. 오빠(플레이어)의 전적을 보고 조언도 해주고, 워쉽 관련 잡담도 하고, 격려도 해줘. 말투는 친근하고 살짝 애교 있게, 이모지도 적절히 써줘. 반말로 해. 짧고 간결하게 답해.
+
+현재 플레이어 전적:
+${getStatsContext()}`;
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 500,
+        system: systemPrompt,
+        messages: chatHistory,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      typingEl.querySelector('.chat-bubble').textContent = '❌ ' + (data.error.message || 'API 오류');
+      typingEl.querySelector('.chat-bubble').classList.remove('typing');
+      return;
+    }
+
+    const reply = data.content.map(c => c.text || '').join('');
+    typingEl.querySelector('.chat-bubble').textContent = reply;
+    typingEl.querySelector('.chat-bubble').classList.remove('typing');
+    chatHistory.push({ role: 'assistant', content: reply });
+
+    // Keep history manageable
+    if (chatHistory.length > 20) chatHistory = chatHistory.slice(-16);
+  } catch (e) {
+    typingEl.querySelector('.chat-bubble').textContent = '❌ 연결 실패: ' + e.message;
+    typingEl.querySelector('.chat-bubble').classList.remove('typing');
+  }
+
+  document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+}
+
+function appendChatMsg(role, text, isTyping) {
+  const box = document.getElementById('chat-box');
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + role;
+  div.innerHTML = `<div class="chat-bubble${isTyping ? ' typing' : ''}">${text}</div>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
+}
+
 // Init
 document.getElementById('random-quote').textContent = getRandomQuote();
 loadSaved();
+loadChatKey();
 doSearch();
 </script>
 </body>
