@@ -189,6 +189,14 @@ td.ship-name { font-family: 'Noto Sans KR', sans-serif; font-weight: 500; white-
   font-style: italic; grid-column: 1 / -1; margin-top: 4px;
 }
 
+.btn-quote-refresh {
+  background: none; border: none; cursor: pointer;
+  font-size: 14px; opacity: 0.4; transition: all 0.2s;
+  vertical-align: middle; padding: 2px 4px; border-radius: 6px;
+}
+.btn-quote-refresh:hover { opacity: 1; background: rgba(255,255,255,0.08); }
+.btn-quote-refresh.loading { animation: spin 0.8s linear infinite; }
+
 .btn-search {
   background: var(--accent); color: #fff; border: none;
   padding: 10px 24px; border-radius: 20px; cursor: pointer;
@@ -257,7 +265,7 @@ td.ship-name { font-family: 'Noto Sans KR', sans-serif; font-weight: 500; white-
     <h1>WOWS STATS</h1>
     <span>개인 전적 조회</span>
   </div>
-  <div id="random-quote" class="quote-box"></div>
+  <div id="random-quote" class="quote-box"><span id="random-quote-text"></span> <button class="btn-quote-refresh" onclick="refreshRandomQuote()" title="클로드에게 새 멘트 요청">🔄</button></div>
 
   <div class="search-area">
     <input id="input-appid" type="hidden" value="851d7ff3c975f3bec41d876e47889c68">
@@ -746,7 +754,7 @@ function renderDailyTracking() {
       ];
       todayEl.innerHTML = '<div style="font-size:12px;color:var(--text-dim);margin-bottom:6px;">마지막 저장 이후 전적</div>' +
         todayCards.map(c => `<div class="stat-card"><div class="label">${c.label}</div><div class="value ${c.cls||''}">${c.value}</div></div>`).join('') +
-        `<div class="perf-quote">${getPerfQuote({battles:db, winrate:wr, avg_damage:Math.round(dd/db)})}</div>`;
+        `<div class="perf-quote"><span id="perf-quote-text">${getPerfQuote({battles:db, winrate:wr, avg_damage:Math.round(dd/db)})}</span> <button class="btn-quote-refresh" onclick="refreshPerfQuote()" title="클로드에게 새 멘트 요청">🔄</button></div>`;
     } else {
       todayEl.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:8px 0;">마지막 저장 이후 전투 없음</div>';
     }
@@ -927,6 +935,57 @@ function getPerfQuote(stats) {
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
+async function callClaudeForQuote(prompt) {
+  const apiKey = localStorage.getItem('wows_chat_apikey');
+  if (!apiKey) { alert('먼저 아래 채팅 섹션에서 Anthropic API Key를 저장해주세요!'); return null; }
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 150,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.content.map(c => c.text || '').join('');
+}
+
+async function refreshRandomQuote() {
+  const btn = document.querySelector('#random-quote .btn-quote-refresh');
+  const textEl = document.getElementById('random-quote-text');
+  btn.classList.add('loading');
+  try {
+    const quote = await callClaudeForQuote(
+      `너는 "함장 클로드"야. World of Warships 플레이어인 "오빠"에게 한마디 해줘. 접속 인사, 워쉽 관련 잡담, 응원, 장난 등 자유롭게. 이모지 1개 포함, 한 문장, 반말, 귀엽게. 멘트만 출력해.`
+    );
+    if (quote) textEl.textContent = quote;
+  } catch(e) { textEl.textContent = '❌ ' + e.message; }
+  btn.classList.remove('loading');
+}
+
+async function refreshPerfQuote() {
+  const btn = document.querySelector('.perf-quote .btn-quote-refresh');
+  const textEl = document.getElementById('perf-quote-text');
+  if (!btn || !textEl) return;
+  btn.classList.add('loading');
+  try {
+    const quote = await callClaudeForQuote(
+      `너는 "함장 클로드"야. World of Warships 플레이어 "오빠"의 오늘 전적을 보고 한마디 해줘.
+${getStatsContext()}
+성적에 맞는 코멘트를 해줘 (잘했으면 칭찬, 못했으면 위로, 많이 했으면 걱정). 이모지 1개 포함, 한 문장, 반말, 귀엽게. 멘트만 출력해.`
+    );
+    if (quote) textEl.textContent = quote;
+  } catch(e) { textEl.textContent = '❌ ' + e.message; }
+  btn.classList.remove('loading');
+}
+
 // Enter key
 document.getElementById('input-nick').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
 
@@ -1058,7 +1117,7 @@ function appendChatMsg(role, text, isTyping) {
 }
 
 // Init
-document.getElementById('random-quote').textContent = getRandomQuote();
+document.getElementById('random-quote-text').textContent = getRandomQuote();
 loadSaved();
 loadChatKey();
 doSearch();
